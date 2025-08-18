@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container my-4">
+  <h2 class="mb-3">Checkout</h2>
+
+  <!-- Order Summary -->
+  <div class="card mb-4 shadow-sm">
+    <div class="card-header bg-light"><strong>Order Summary</strong></div>
+    <div class="card-body p-0">
+      <ul class="list-group list-group-flush">
+        {% for item in cart_items %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+              <strong>{{ item.product.name }}</strong> (x{{ item.quantity }})<br>
+              {% if item.product.discount_price %}
+                <small>
+                  <span class="text-muted text-decoration-line-through">
+                    PKR {{ item.product.price }}
+                  </span>
+                  <span class="text-danger fw-bold">
+                    PKR {{ item.product.discount_price }}
+                  </span>
+                </small>
+              {% else %}
+                <small>PKR {{ item.product.price }}</small>
+              {% endif %}
+            </div>
+            <span class="fw-bold">PKR {{ item.subtotal }}</span>
+          </li>
+        {% endfor %}
+        <li class="list-group-item d-flex justify-content-between">
+          <span class="fw-bold">Total</span>
+          <span class="fw-bold text-primary">PKR {{ total }}</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Checkout Form -->
+  <div class="card p-4 shadow-sm">
+    <form method="post">
+      {% csrf_token %}
+
+      <div class="mb-3">
+        {{ form.full_name.label_tag }}
+        {{ form.full_name }}
+      </div>
+
+      <div class="mb-3">
+        {{ form.phone_number.label_tag }}
+        {{ form.phone_number }}
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          {{ form.city.label_tag }}
+          {{ form.city }}
+        </div>
+        <div class="col-md-6 mb-3">
+          {{ form.province.label_tag }}
+          {{ form.province }}
+        </div>
+      </div>
+
+      <div class="mb-3">
+        {{ form.shipping_address.label_tag }}
+        {{ form.shipping_address }}
+      </div>
+
+      <div class="mb-3">
+        <label class="fw-bold">Payment Method</label><br>
+        {{ form.payment_method }}
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100">Place Order</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

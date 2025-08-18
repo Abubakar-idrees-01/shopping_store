@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Admin Dashboard</h2>
+
+<!-- Quick Links -->
+<div class="mb-4">
+  <a href="{% url 'admin:index' %}" class="btn btn-primary btn-sm">Django Admin</a>
+  <a href="{% url 'admin:store_product_add' %}" class="btn btn-success btn-sm">Add Product</a>
+  <a href="{% url 'admin:store_product_changelist' %}" class="btn btn-outline-secondary btn-sm">View Products</a>
+  <a href="{% url 'admin:store_order_changelist' %}" class="btn btn-outline-info btn-sm">View Orders</a>
+  <a href="{% url 'admin:store_category_changelist' %}" class="btn btn-outline-warning btn-sm">Manage Categories</a>
+</div>
+
+<div class="row mb-4">
+  <div class="col-md-4">
+    <div class="card p-3 text-center bg-light shadow-sm">
+      <h5>Total Orders</h5>
+      <h3>{{ total_orders }}</h3>
+    </div>
+  </div>
+  <div class="col-md-4">
+      <div class="card p-3 text-center bg-light shadow-sm">
+        <h5>Total Revenue (All Orders)</h5>
+        <h3>PKR {{ total_revenue }}</h3>
+      </div>
+    </div>
+</div>
+
+<hr>
+
+<h4>Orders by Status</h4>
+<table class="table table-bordered table-striped">
+  <thead class="table-dark">
+    <tr><th>Status</th><th>Count</th></tr>
+  </thead>
+  <tbody>
+    {% for stat in orders_by_status %}
+    <tr>
+      <td>
+        <span class="badge 
+          {% if stat.status == 'Cancelled' %}bg-danger
+          {% elif stat.status == 'Completed' %}bg-success
+          {% elif stat.status == 'Paid' %}bg-primary
+          {% else %}bg-secondary{% endif %}">
+          {{ stat.status }}
+        </span>
+      </td>
+      <td>{{ stat.count }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<hr>
+
+<h4>Low Stock Alerts</h4>
+{% if low_stock_products %}
+<table class="table table-warning table-striped">
+  <thead>
+    <tr><th>Product</th><th>Stock</th></tr>
+  </thead>
+  <tbody>
+    {% for product in low_stock_products %}
+    <tr>
+      <td>{{ product.name }}</td>
+      <td>{{ product.stock }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="text-success">No low stock products.</p>
+{% endif %}
+
+{% endblock %}

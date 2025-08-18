@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Server Error - Minshas Collection{% endblock %}
+
+{% block content %}
+<div style="text-align:center; padding:100px; color:red;">
+  <h1>500 - Server Error</h1>
+  <p>Something went wrong on our end. Please try again later.</p>
+  <a href="{% url 'product_list' %}" class="btn btn-primary">Back to Home</a>
+</div>
+{% endblock %}

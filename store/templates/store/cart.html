@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Your Cart</h2>
+
+{% if cart_items %}
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Product</th>
+        <th>Price</th>
+        <th>Qty</th>
+        <th>Subtotal</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in cart_items %}
+        <tr>
+          <td>{{ item.product.name }}</td>
+          <td>
+            {% if item.product.discount_price %}
+              <span class="text-muted text-decoration-line-through">
+                PKR {{ item.product.price }}
+              </span><br>
+              <strong class="text-danger">PKR {{ item.product.discount_price }}</strong>
+            {% else %}
+              PKR {{ item.product.price }}
+            {% endif %}
+          </td>
+          <td>{{ item.quantity }}</td>
+          <td>PKR {{ item.subtotal }}</td>
+          <td>
+            <a href="{% url 'remove_from_cart' item.product.id %}" class="btn btn-danger btn-sm">Remove</a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h4>Total: <strong>PKR {{ total }}</strong></h4>
+  <a href="{% url 'place_order' %}" class="btn btn-primary">Checkout</a>
+{% else %}
+  <p>Your cart is empty.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,6 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Order Placed!</h2>
+<p>Thank you for your order. Your order number is <strong>#{{ order.id }}</strong>.</p>
+<a href="{% url 'product_list' %}" class="btn btn-secondary">Continue Shopping</a>
+{% endblock %}
