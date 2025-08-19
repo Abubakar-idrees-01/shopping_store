@@ -1,4 +1,4 @@
-# 🛒 Django Shopping Store
+# 🛒 Shopping Store built on Django
 
 A full-featured **e-commerce web application** built with Django.
 It includes product browsing, cart & wishlist management, order processing, user authentication, reviews, and a custom admin dashboard.
