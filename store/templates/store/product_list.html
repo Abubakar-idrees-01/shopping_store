@@ -1,26 +1,41 @@
 {% extends 'base.html' %}
 {% block content %}
+<div id="bannerCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel">
+    <div class="carousel-indicators">
+        <button type="button" data-bs-target="#bannerCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+        <button type="button" data-bs-target="#bannerCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+        <button type="button" data-bs-target="#bannerCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+    </div>
+
+    <div class="carousel-inner">
+        <div class="carousel-item active" data-bs-interval="3000">
+            <img src="media/banner.png" class="d-block w-100" alt="Banner Image 1" style="max-height: 400px; object-fit: cover;">
+        </div>
+
+        <div class="carousel-item" data-bs-interval="3000">
+            <img src="media/banner1.png" class="d-block w-100" alt="Banner Image 2" style="max-height: 400px; object-fit: cover;">
+        </div>
+
+        <div class="carousel-item" data-bs-interval="3000">
+            <img src="media/banner2.png" class="d-block w-100" alt="Banner Image 3" style="max-height: 400px; object-fit: cover;">
+        </div>
+    </div>
+
+    <button class="carousel-control-prev" type="button" data-bs-target="#bannerCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#bannerCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+    </button>
+    
+</div> 
+<nav class="navbar navbar-expand-lg navbar-dark shadow-sm sticky-top">
+</nav>
+
+</div>
 <h2>Products</h2>
-
-<form method="get" class="row mb-4">
-  <div class="col-md-4">
-    <input type="text" name="q" value="{{ request.GET.q }}" class="form-control" placeholder="Search products...">
-  </div>
-  <div class="col-md-4">
-    <select name="category" class="form-control">
-      <option value="">All Brands</option>
-      {% for cat in categories %}
-        <option value="{{ cat.slug }}" {% if request.GET.category == cat.slug %}selected{% endif %}>
-          {{ cat.name }}
-        </option>
-      {% endfor %}
-    </select>
-  </div>
-  <div class="col-md-4">
-    <button class="btn btn-primary w-100">Search</button>
-  </div>
-</form>
-
 <div class="row">
   {% for product in products %}
     <div class="col-md-3 mb-4 d-flex">
