@@ -5,8 +5,8 @@
   {% for product in wishlist.products.all %}
     <div class="col-md-3 mb-4">
       <div class="card h-100">
-        {% if product.image %}
-          <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+        {% if product.image1 %}
+          <img src="{{ product.image1.url }}" class="card-img-top" alt="{{ product.name }}">
         {% endif %}
         <div class="card-body">
           <h5 class="card-title">{{ product.name }}</h5>

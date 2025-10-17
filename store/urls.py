@@ -5,6 +5,7 @@ from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path("profile/", views.profile_view, name="profile"),
+    path('profile/update/', views.update_profile, name='update_profile'),
     
     # Storefront
     path('', views.ProductListView.as_view(), name='product_list'),

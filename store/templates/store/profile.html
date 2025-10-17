@@ -22,6 +22,11 @@
             <p><strong>Date Joined:</strong> {{ user.date_joined|date:"F j, Y" }}</p>
             <p><strong>Last Login:</strong> {{ user.last_login|date:"F j, Y, g:i a" }}</p>
           </div>
+
+          <!-- ✅ Update Profile Button -->
+          <a href="{% url 'update_profile' %}" class="btn btn-primary mt-3">
+            <i class="bi bi-pencil-square"></i> Update Profile
+          </a>
         </div>
       </div>
 

@@ -310,3 +310,23 @@ def my_orders(request):
 @login_required
 def profile_view(request):
     return render(request, "store/profile.html", {"user": request.user})
+
+@login_required
+def update_profile(request):
+    user = request.user
+    profile = user.profile  # make sure you have a Profile model linked to User
+
+    if request.method == 'POST':
+        user.first_name = request.POST.get('first_name')
+        user.last_name = request.POST.get('last_name')
+        user.email = request.POST.get('email')
+
+        if 'image' in request.FILES:
+            profile.image = request.FILES['image']
+            profile.save()
+
+        user.save()
+        messages.success(request, 'Your profile has been updated successfully ✅')
+        return redirect('profile')
+
+    return render(request, 'store/update_profile.html')

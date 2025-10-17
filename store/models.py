@@ -77,7 +77,8 @@ class Product(models.Model):
     is_active = models.BooleanField(default=True)
 
     # Media
-    image = models.ImageField(upload_to="products/", blank=True, null=True)
+    image1 = models.ImageField(upload_to="products/", blank=True, null=True)
+    image2 = models.ImageField(upload_to="products/", blank=True, null=True)
 
     # Delivery Info
     delivery_nationwide = models.CharField(max_length=100, default="2-3 working days nationwide")
@@ -288,3 +289,22 @@ class CartItem(models.Model):
         return self.price * self.quantity
 
 
+
+# -----------------------------
+# Profile (Session Based)
+# -----------------------------
+
+
+from django.db import models
+from django.contrib.auth.models import User
+
+def user_profile_image_upload_path(instance, filename):
+    # e.g. media/profile_images/username/filename.jpg
+    return f'profile_images/{instance.user.username}/{filename}'
+
+class UserProfileImage(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile_image')
+    image1 = models.ImageField(upload_to="profiles/", blank=True, null=True)
+
+    def __str__(self):
+        return f"Profile Image of {self.user.username}"

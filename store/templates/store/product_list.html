@@ -41,19 +41,53 @@
     <div class="col-md-3 mb-4 d-flex">
       <div class="card shadow-sm h-100 w-100 d-flex flex-column">
         
-        {% if product.image %}
-          <!-- Taller image box for suits / models -->
-          <div class="card-img-top d-flex align-items-center justify-content-center bg-light" 
-               style="height: 380px; overflow: hidden;">
-            <img src="{{ product.image.url }}" alt="{{ product.name }}" 
-                 style="height: 100%; width: auto; object-fit: cover;">
-          </div>
-        {% else %}
-          <div class="card-img-top d-flex align-items-center justify-content-center bg-light" 
-               style="height: 380px;">
-            <span class="text-muted">No Image</span>
-          </div>
-        {% endif %}
+        {% if product.image1 %}
+  <div class="card-img-top d-flex align-items-center justify-content-center bg-light overflow-hidden position-relative" 
+       style="height: 380px;">
+
+    <!-- Main Image -->
+    <img src="{{ product.image1.url }}" alt="{{ product.name }}" class="product-image main-image">
+
+    <!-- Hover Image (only if image1 exists) -->
+    {% if product.image2 %}
+    <img src="{{ product.image2.url }}" alt="{{ product.name }}" class="product-image hover-image position-absolute top-0 start-0">
+    {% endif %}
+  </div>
+
+  <style>
+    .product-image {
+      transition: transform 0.4s ease, opacity 0.4s ease;
+      height: 100%;
+      width: auto;
+      object-fit: cover;
+    }
+
+    .hover-image {
+      opacity: 0;
+    }
+
+    .card-img-top:hover .main-image {
+      opacity: 0;
+      transform: scale(1.2);
+    }
+
+    .card-img-top:hover .hover-image {
+      opacity: 1;
+      transform: scale(1.2);
+    }
+
+    .card-img-top {
+      overflow: hidden;
+      cursor: pointer;
+    }
+  </style>
+
+{% else %}
+  <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 380px;">
+    <span class="text-muted">No Image</span>
+  </div>
+{% endif %}
+
 
         <div class="card-body d-flex flex-column">
           <h6 class="card-title text-truncate" title="{{ product.name }}">{{ product.name }}</h6>
