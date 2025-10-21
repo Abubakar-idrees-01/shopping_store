@@ -15,11 +15,12 @@ from django.contrib.auth.models import User
 
 from .models import Product, Category, Wishlist, Review, Order, OrderItem
 from .forms import ReviewForm, CheckoutForm
-
+from django.db.models import F
 
 # -------------------------------
 # Product List View
 # -------------------------------
+
 class ProductListView(ListView):
     model = Product
     template_name = 'store/product_list.html'
@@ -29,23 +30,47 @@ class ProductListView(ListView):
     def get_queryset(self):
         queryset = Product.objects.filter(is_active=True)
 
-        # Search filter
+        # 🔍 Search filter
         query = self.request.GET.get('q')
         if query:
             queryset = queryset.filter(
                 Q(name__icontains=query) | Q(description__icontains=query)
             )
 
-        # Category filter
+        # 🏷️ Category filter
         category_slug = self.request.GET.get('category')
         if category_slug:
             queryset = queryset.filter(category__slug=category_slug)
+
+        # 🧵 Fabric filter
+        fabric_name = self.request.GET.get('fabric')
+        if fabric_name:
+            queryset = queryset.filter(fabric__iexact=fabric_name)
 
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['categories'] = Category.objects.all()
+
+        # 🧵 All available fabrics
+        context['fabrics'] = (
+            Product.objects
+            .filter(is_active=True)
+            .exclude(fabric__exact="")
+            .values_list('fabric', flat=True)
+            .distinct()
+        )
+
+        # ✅ Top Discounted Products (using your new percentage field)
+        context['discounted_products'] = (
+            Product.objects.filter(is_active=True, stock__gt=0, percentage_price__gt=0)
+            .order_by('-percentage_price')[:10]
+        )
+
+        # For keeping selected filter active in the template
+        context['selected_fabric'] = self.request.GET.get('fabric', None)
+
         return context
 
 

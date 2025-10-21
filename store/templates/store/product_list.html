@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
+
+<!-- Banner Carousel -->
 <div id="bannerCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel">
     <div class="carousel-indicators">
         <button type="button" data-bs-target="#bannerCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
@@ -9,15 +11,15 @@
 
     <div class="carousel-inner">
         <div class="carousel-item active" data-bs-interval="3000">
-            <img src="media/banner.png" class="d-block w-100" alt="Banner Image 1" style="max-height: 400px; object-fit: cover;">
+            <img src="/media/banner.png" class="d-block w-100" alt="Banner Image 1" style="max-height: 400px; object-fit: cover;">
         </div>
 
         <div class="carousel-item" data-bs-interval="3000">
-            <img src="media/banner1.png" class="d-block w-100" alt="Banner Image 2" style="max-height: 400px; object-fit: cover;">
+            <img src="/media/banner1.png" class="d-block w-100" alt="Banner Image 2" style="max-height: 400px; object-fit: cover;">
         </div>
 
         <div class="carousel-item" data-bs-interval="3000">
-            <img src="media/banner2.png" class="d-block w-100" alt="Banner Image 3" style="max-height: 400px; object-fit: cover;">
+            <img src="/media/banner2.png" class="d-block w-100" alt="Banner Image 3" style="max-height: 400px; object-fit: cover;">
         </div>
     </div>
 
@@ -28,119 +30,317 @@
     <button class="carousel-control-next" type="button" data-bs-target="#bannerCarousel" data-bs-slide="next">
         <span class="carousel-control-next-icon" aria-hidden="true"></span>
         <span class="visually-hidden">Next</span>
-    </button>
-    
+    </button>    
 </div> 
-<nav class="navbar navbar-expand-lg navbar-dark shadow-sm sticky-top">
-</nav>
 
+
+<!-- 🆕 Latest Products Carousel Section -->
+<div class="container my-5">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="fw-bold mb-0">Latest Products</h3>
+    <div>
+      <button class="btn btn-outline-dark btn-sm me-2" id="scrollLeft"><i class="bi bi-chevron-left"></i></button>
+      <button class="btn btn-outline-dark btn-sm" id="scrollRight"><i class="bi bi-chevron-right"></i></button>
+    </div>
+  </div>
+
+  <!-- Scrollable Product Container -->
+  <div class="scroll-container d-flex overflow-auto gap-4 pb-3" id="productScroll" style="scroll-behavior: smooth;">
+    {% for product in products %}
+    <div class="card shadow-sm flex-shrink-0 product-card" style="width: 250px; display: none;">
+      
+      {% if product.image1 %}
+      <div class="card-img-top d-flex align-items-center justify-content-center bg-light overflow-hidden position-relative" style="height: 300px;">
+          <img src="{{ product.image1.url }}" alt="{{ product.name }}" class="product-image main-image w-100 h-100 object-fit-cover">
+
+          {% if product.image2 %}
+          <img src="{{ product.image2.url }}" alt="{{ product.name }}" class="product-image hover-image position-absolute top-0 start-0 w-100 h-100 object-fit-cover">
+          {% endif %}
+      </div>
+      {% else %}
+      <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 300px;">
+          <span class="text-muted">No Image</span>
+      </div>
+      {% endif %}
+
+      <div class="card-body d-flex flex-column text-center">
+        <h6 class="card-title text-truncate mb-1" title="{{ product.name }}">{{ product.name }}</h6>
+        <p class="mb-2 small">
+          {% if product.discount_price %}
+            <span class="text-muted text-decoration-line-through">PKR {{ product.price }}</span><br>
+            <span class="text-danger fw-bold">PKR {{ product.discount_price }}</span>
+          {% else %}
+            <span class="fw-bold">PKR {{ product.price }}</span>
+          {% endif %}
+        </p>
+        <a href="{% url 'product_detail' product.slug %}" class="btn btn-sm btn-outline-primary mt-auto w-100">View</a>
+      </div>
+    </div>
+    {% empty %}
+      <p class="text-center w-100">No products found.</p>
+    {% endfor %}
+  </div>
+
+  <!-- Show More Button -->
+  {% if products %}
+  <div class="text-center mt-4">
+    <button id="showMoreBtn" class="btn btn-dark px-4">Show More</button>
+  </div>
+  {% endif %}
 </div>
-<h2>Products</h2>
-<div class="row">
-  {% for product in products %}
-    <div class="col-md-3 mb-4 d-flex">
-      <div class="card shadow-sm h-100 w-100 d-flex flex-column">
-        
-        {% if product.image1 %}
-  <div class="card-img-top d-flex align-items-center justify-content-center bg-light overflow-hidden position-relative" 
-       style="height: 380px;">
 
-    <!-- Main Image -->
-    <img src="{{ product.image1.url }}" alt="{{ product.name }}" class="product-image main-image">
+<!-- 🧠 Styling -->
+<style>
+.scroll-container::-webkit-scrollbar { height: 8px; }
+.scroll-container::-webkit-scrollbar-thumb { background-color: #bbb; border-radius: 4px; }
+.hover-image { opacity: 0; transition: opacity 0.4s ease; }
+.card:hover .hover-image { opacity: 1; }
+</style>
 
-    <!-- Hover Image (only if image1 exists) -->
-    {% if product.image2 %}
-    <img src="{{ product.image2.url }}" alt="{{ product.name }}" class="product-image hover-image position-absolute top-0 start-0">
-    {% endif %}
-  </div>
+<!-- ⚙️ JS: Scroll + Show More -->
+<script>
+document.getElementById("scrollLeft").addEventListener("click", function() {
+  document.getElementById("productScroll").scrollBy({ left: -300, behavior: "smooth" });
+});
+document.getElementById("scrollRight").addEventListener("click", function() {
+  document.getElementById("productScroll").scrollBy({ left: 300, behavior: "smooth" });
+});
 
-  <style>
+// ✅ Show More Button Functionality
+const productCards = document.querySelectorAll('.product-card');
+const showMoreBtn = document.getElementById('showMoreBtn');
+let visibleCount = 4; // show 4 initially
+
+function showNextProducts() {
+  for (let i = 0; i < visibleCount && i < productCards.length; i++) {
+    productCards[i].style.display = 'block';
+  }
+  if (visibleCount >= productCards.length) {
+    showMoreBtn.style.display = 'none'; // hide button when all shown
+  }
+}
+
+// Show initial 4 products
+showNextProducts();
+
+showMoreBtn.addEventListener('click', function() {
+  visibleCount += 4;
+  showNextProducts();
+});
+</script>
+
+
+<!-- Second Banner -->
+<style>
     .product-image {
-      transition: transform 0.4s ease, opacity 0.4s ease;
-      height: 100%;
-      width: auto;
-      object-fit: cover;
+        transition: transform 0.4s ease, opacity 0.4s ease;
+        height: 100%;
+        width: auto;
+        object-fit: cover;
     }
-
     .hover-image {
-      opacity: 0;
+        opacity: 0;
     }
-
     .card-img-top:hover .main-image {
-      opacity: 0;
-      transform: scale(1.2);
+        opacity: 0;
+        transform: scale(1.2);
     }
-
     .card-img-top:hover .hover-image {
-      opacity: 1;
-      transform: scale(1.2);
+        opacity: 1;
+        transform: scale(1.2);
     }
-
     .card-img-top {
-      overflow: hidden;
-      cursor: pointer;
+        overflow: hidden;
+        cursor: pointer;
     }
-  </style>
+    .banner-container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 40px auto;
+        overflow: hidden;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .banner-container img {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+</style>
 
-{% else %}
-  <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 380px;">
-    <span class="text-muted">No Image</span>
+<div class="banner-container">
+    <img src="/media/banner4.png" alt="Banner Image">
+</div>
+
+
+<!-- 🔥 Top Discounted Products Section -->
+{% if discounted_products %}
+<div class="container my-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold mb-0">Top Discounted Products</h3>
+    <div>
+      <button class="btn btn-outline-secondary btn-sm me-2" id="scrollLeft">
+        <i class="bi bi-chevron-left"></i>
+      </button>
+      <button class="btn btn-outline-secondary btn-sm" id="scrollRight">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
   </div>
+
+  <!-- Horizontal Scrollable Product Row -->
+  <div class="d-flex overflow-auto gap-3 pb-2" id="discountScroll">
+    {% for product in discounted_products %}
+    <div class="card border-0 shadow-sm" style="min-width: 250px; flex: 0 0 auto;">
+      <div class="position-relative overflow-hidden" style="height: 300px;">
+        {% if product.image1 %}
+          <img src="{{ product.image1.url }}" class="w-100 h-100 object-fit-cover" alt="{{ product.name }}">
+        {% else %}
+          <img src="/media/products/no-image.png" class="w-100 h-100 object-fit-cover" alt="No image">
+        {% endif %}
+      </div>
+
+      <div class="card-body text-center">
+        <h6 class="fw-semibold text-truncate mb-1">{{ product.name }}</h6>
+        <p class="text-muted mb-1 small">
+          <del>Rs. {{ product.price|floatformat:0 }}</del>
+          <span class="text-success fw-bold ms-1">
+            Rs. {{ product.discount_price|floatformat:0 }}
+          </span>
+        </p>
+        {% if product.percentage_price %}
+          <span class="badge bg-danger">{{ product.percentage_price|floatformat:0 }}% OFF</span>
+        {% endif %}
+        <a href="{% url 'product_detail' product.slug %}" class="btn btn-outline-dark btn-sm w-100 mt-2">
+          View Product
+        </a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Scroll Buttons Script -->
+<script>
+  const scrollContainer = document.getElementById("discountScroll");
+  document.getElementById("scrollLeft").onclick = () => scrollContainer.scrollBy({ left: -300, behavior: 'smooth' });
+  document.getElementById("scrollRight").onclick = () => scrollContainer.scrollBy({ left: 300, behavior: 'smooth' });
+</script>
+{% else %}
+  <p class="text-center my-5 text-muted">No discounted products available.</p>
 {% endif %}
 
 
-        <div class="card-body d-flex flex-column">
-          <h6 class="card-title text-truncate" title="{{ product.name }}">{{ product.name }}</h6>
-          <p class="mb-2">
-            {% if product.discount_price %}
-              <span class="text-muted text-decoration-line-through">PKR {{ product.price }}</span><br>
-              <span class="text-danger fw-bold">PKR {{ product.discount_price }}</span>
-            {% else %}
-              <span class="fw-bold">PKR {{ product.price }}</span>
-            {% endif %}
-          </p>
-          
-          <div class="mt-auto">
-            <a href="{% url 'product_detail' product.slug %}" class="btn btn-sm btn-outline-primary w-100 mb-2">View</a>
+<!-- Third Banner -->
+<style>
+    .product-image {
+        transition: transform 0.4s ease, opacity 0.4s ease;
+        height: 100%;
+        width: auto;
+        object-fit: cover;
+    }
+    .hover-image {
+        opacity: 0;
+    }
+    .card-img-top:hover .main-image {
+        opacity: 0;
+        transform: scale(1.2);
+    }
+    .card-img-top:hover .hover-image {
+        opacity: 1;
+        transform: scale(1.2);
+    }
+    .card-img-top {
+        overflow: hidden;
+        cursor: pointer;
+    }
+    .banner-container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 40px auto;
+        overflow: hidden;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .banner-container img {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+</style>
 
-            {% if product.stock > 0 %}
-              <form method="post" action="{% url 'add_to_cart' product.id %}">
-                {% csrf_token %}
-                <div class="input-group input-group-sm mb-1">
-                  <input type="number" name="quantity" min="1" max="{{ product.stock }}" value="1" class="form-control" style="max-width:70px;">
-                  <button type="submit" class="btn btn-success">Add</button>
-                </div>
-                <small class="text-muted">Only {{ product.stock }} left</small>
-              </form>
+<div class="banner-container">
+    <img src="/media/banner5.png" alt="Banner Image">
+</div>
+
+
+<!-- 🧵 Shop by Fabric Section -->
+<div class="container my-4 text-center">
+  <h5 class="fw-bold mb-3">Shop by Fabric</h5>
+  <div class="d-flex flex-wrap justify-content-center gap-2">
+    {% for fabric in fabrics %}
+      <a href="?fabric={{ fabric }}" 
+         class="btn btn-outline-dark btn-sm {% if selected_fabric == fabric %}active{% endif %}">
+        {{ fabric|title }}
+      </a>
+    {% endfor %}
+
+    {% if selected_fabric %}
+      <a href="{% url 'product_list' %}" class="btn btn-sm btn-secondary ms-2">
+        Clear Filter
+      </a>
+    {% endif %}
+  </div>
+</div>
+
+<!-- 🛍️ Fabric Products Section -->
+<div class="container my-5">
+  <div class="row g-4">
+    {% for product in products %}
+      <div class="col-md-3 col-sm-6">
+        <div class="card border-0 shadow-sm h-100">
+          
+          <!-- Product Image -->
+          {% if product.image1 %}
+            <img src="{{ product.image1.url }}" 
+                 class="card-img-top" 
+                 style="height: 300px; object-fit: cover;" 
+                 alt="{{ product.name }}">
+          {% else %}
+            <img src="/media/products/no-image.png" 
+                 class="card-img-top" 
+                 style="height: 300px; object-fit: cover;" 
+                 alt="No image">
+          {% endif %}
+          
+          <!-- Product Info -->
+          <div class="card-body text-center">
+            <h6 class="fw-semibold text-truncate" title="{{ product.name }}">
+              {{ product.name }}
+            </h6>
+            <p class="text-muted mb-1">{{ product.fabric|title }}</p>
+
+            {% if product.discount_price %}
+              <p class="mb-1">
+                <del class="text-muted">Rs. {{ product.price|floatformat:0 }}</del><br>
+                <span class="fw-bold text-success">Rs. {{ product.discount_price|floatformat:0 }}</span>
+              </p>
             {% else %}
-              <button class="btn btn-secondary btn-sm w-100" disabled>Out of Stock</button>
+              <p class="fw-bold text-dark">Rs. {{ product.price|floatformat:0 }}</p>
             {% endif %}
+            
+            <a href="{% url 'product_detail' product.slug %}" 
+               class="btn btn-outline-dark btn-sm mt-2">
+              View Product
+            </a>
           </div>
         </div>
       </div>
-    </div>
-  {% empty %}
-    <p>No products found.</p>
-  {% endfor %}
+    {% empty %}
+      <p class="text-center">No products available for this fabric.</p>
+    {% endfor %}
+  </div>
 </div>
 
-<div class="mt-4">
-  {% if is_paginated %}
-    <nav>
-      <ul class="pagination justify-content-center">
-        {% if page_obj.has_previous %}
-          <li class="page-item"><a class="page-link" href="?page=1">First</a></li>
-          <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
-        {% endif %}
 
-        <li class="page-item active"><span class="page-link">{{ page_obj.number }}</span></li>
-
-        {% if page_obj.has_next %}
-          <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
-          <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a></li>
-        {% endif %}
-      </ul>
-    </nav>
-  {% endif %}
-</div>
 {% endblock %}

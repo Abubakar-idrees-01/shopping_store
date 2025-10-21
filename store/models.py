@@ -47,7 +47,6 @@ class Product(models.Model):
         max_length=30,
         unique=True,
         editable=False,
-        
         blank=True,
         help_text="Auto-generated unique SKU"
     )
@@ -61,6 +60,10 @@ class Product(models.Model):
     # Pricing
     price = models.DecimalField(max_digits=10, decimal_places=2)
     discount_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    percentage_price = models.DecimalField(
+        max_digits=5, decimal_places=2, null=True, blank=True,
+        help_text="Stores the discount percentage (auto-calculated)"
+    )
 
     # Classification
     product_type = models.CharField(max_length=20, choices=PRODUCT_TYPE_CHOICES, default="unstitched")
@@ -104,6 +107,14 @@ class Product(models.Model):
             unique_id = uuid.uuid4().hex[:5].upper()
             self.product_code = f"{prefix}-{unique_id}"
 
+        # Auto-calculate discount percentage
+        if self.discount_price and self.discount_price < self.price:
+            self.percentage_price = round(
+                (1 - (self.discount_price / self.price)) * 100, 2
+            )
+        else:
+            self.percentage_price = 0
+
         super().save(*args, **kwargs)
 
     # === Pricing Helpers ===
@@ -115,9 +126,7 @@ class Product(models.Model):
 
     @property
     def discount_percentage(self):
-        if self.discount_price and self.discount_price < self.price:
-            return int(100 - (self.discount_price / self.price * 100))
-        return 0
+        return int(self.percentage_price or 0)
 
     # === Extra Helpers ===
     @property
@@ -295,16 +304,4 @@ class CartItem(models.Model):
 # -----------------------------
 
 
-from django.db import models
-from django.contrib.auth.models import User
 
-def user_profile_image_upload_path(instance, filename):
-    # e.g. media/profile_images/username/filename.jpg
-    return f'profile_images/{instance.user.username}/{filename}'
-
-class UserProfileImage(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile_image')
-    image1 = models.ImageField(upload_to="profiles/", blank=True, null=True)
-
-    def __str__(self):
-        return f"Profile Image of {self.user.username}"
