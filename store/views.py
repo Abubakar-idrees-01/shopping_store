@@ -43,9 +43,9 @@ class ProductListView(ListView):
             queryset = queryset.filter(category__slug=category_slug)
 
         # 🧵 Fabric filter
-        fabric_name = self.request.GET.get('fabric')
-        if fabric_name:
-            queryset = queryset.filter(fabric__iexact=fabric_name)
+        fabric = self.request.GET.get('fabric')
+        if fabric:
+            queryset = queryset.filter(fabric__iexact=fabric)
 
         return queryset
 
@@ -53,26 +53,26 @@ class ProductListView(ListView):
         context = super().get_context_data(**kwargs)
         context['categories'] = Category.objects.all()
 
-        # 🧵 All available fabrics
-        context['fabrics'] = (
-            Product.objects
-            .filter(is_active=True)
+        # ✅ Unique fabrics (case-insensitive + trimmed)
+        fabrics = (
+            Product.objects.filter(is_active=True)
             .exclude(fabric__exact="")
             .values_list('fabric', flat=True)
-            .distinct()
         )
 
-        # ✅ Top Discounted Products (using your new percentage field)
+        # Normalize (remove spaces, lower, then capitalize)
+        unique_fabrics = sorted(set(f.strip().title() for f in fabrics if f))
+
+        context['fabrics'] = unique_fabrics
+        context['selected_fabric'] = self.request.GET.get('fabric')
+
+        # ✅ Top Discounted Products
         context['discounted_products'] = (
             Product.objects.filter(is_active=True, stock__gt=0, percentage_price__gt=0)
             .order_by('-percentage_price')[:10]
         )
 
-        # For keeping selected filter active in the template
-        context['selected_fabric'] = self.request.GET.get('fabric', None)
-
         return context
-
 
 # -------------------------------
 # Product Detail + Review
